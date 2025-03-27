@@ -71,10 +71,10 @@ ScanPlugin.stopDecode()
 
 Here is the step-by-step guide to test the plugin on a Hikvision MV-IDP5006 scanner.
 
-### 1. Remove previous Honeywell plugin (if present)
+### 1. Remove previous plugin (if present)
 
 ```bash
-cordova plugin remove cordova-plugin-scanner-u8000s
+cordova plugin remove cordova-plugin-...
 ```
 
 ### 2. Add the Hikvision plugin
@@ -104,7 +104,10 @@ Or copy and install it manually on the device.
   adb logcat | grep "ScanPlugin"
 ```
 
-© 2025
-
 [cordova]: https://cordova.apache.org
 [CLI]: http://cordova.apache.org/docs/en/edge/guide_cli_index.md.html#The%20Command-line%20Interface
+
+# License
+This software is released under the Apache 2.0 License.
+
+© 2025
