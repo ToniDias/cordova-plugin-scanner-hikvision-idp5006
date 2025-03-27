@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-    id="cordova-plugin-scanner-hikvision-idp5006"
-    version="1.0.0">
+        id="cordova-plugin-scanner-hikvision-idp5006"
+        version="1.0.0">
     <name>Cordova Plugin to manage barcode scanner on Hikvision</name>
     <description></description>
     <license>Apache 2.0</license>
@@ -10,22 +10,20 @@
 
     <!-- android -->
     <platform name="android">
-      <js-module src="www/plugin.js" name="plugin">
-        <runs/>
+        <js-module src="www/plugin.js" name="plugin">
+            <runs/>
 
-        <!-- This is the window variable name you want, like window.MyCordovaPlugin -->
-        <clobbers target="ScanPlugin" />
-      </js-module>
-      <config-file target="res/xml/config.xml" parent="/*">
-        <feature name="ScanPlugin">
-          <param name="android-package" value="com.example.ScanPlugin" />
-          <param name="onload" value="true" />
-        </feature>
-      </config-file>
+            <!-- This is the window variable name you want, like window.MyCordovaPlugin -->
+            <clobbers target="ScanPlugin"/>
+        </js-module>
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="ScanPlugin">
+                <param name="android-package" value="com.example.ScanPlugin"/>
+                <param name="onload" value="true"/>
+            </feature>
+        </config-file>
 
-      <source-file src="src/android/ScanPlugin.java" target-dir="src/ch/syware/scanplugin" />
-      <source-file src="src/android/android-support-v4.jar" target-dir="libs" />
-      <source-file src="src/android/scanSDK.jar" target-dir="libs" />
+        <source-file src="src/android/ScanPlugin.java" target-dir="src/ch/syware/scanplugin"/>
     </platform>
 
 </plugin>

@@ -1,13 +1,11 @@
-/**
- */
-package com.easi.scannerhik;
+package com.example;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.device.ScanDevice;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -15,93 +13,115 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 public class ScanPlugin extends CordovaPlugin {
 
-  private Activity activity;
-  private ScanDevice sm;
-  private final static String SCAN_ACTION = "scan.rcv.message";
-  private String barcodeStr;
-  private CallbackContext callbackContext;
+    private static final String ACTION_SCAN_DATA = "com.service.scanner.data";
 
-  private BroadcastReceiver mScanReceiver = null;
+    private Activity activity;
+    private CallbackContext callbackContext;
+    private BroadcastReceiver scanReceiver;
 
-  private void initScan() {
-    IntentFilter filter = new IntentFilter();
-    filter.addAction(SCAN_ACTION);
-    mScanReceiver = new BroadcastReceiver() {
-	    public void onReceive(Context context, Intent intent) {
-
-	        byte[] barocode = intent.getByteArrayExtra("barocode");
-	        int barocodelen = intent.getIntExtra("length", 0);
-	        byte temp = intent.getByteExtra("barcodeType", (byte) 0);
-	        android.util.Log.i("debug", "----codetype--" + temp);
-	        barcodeStr = new String(barocode, 0, barocodelen);
-	        if (callbackContext != null){
-	          callbackContext.success(barcodeStr);
-	        }
-	    }
-	  };
-    activity.registerReceiver(mScanReceiver, filter);
-  }
-
-  @Override
-  public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-    super.initialize(cordova, webView);
-    sm = new ScanDevice();
-    this.activity = cordova.getActivity();
-    this.initScan();
-  }
-
-  @Override
-  public void onResume(boolean multitasking) {
-    super.onResume(multitasking);
-    this.initScan();
-  }
-
-  @Override
-  public void onPause(boolean multitasking) {
-    super.onPause(multitasking);
-    if(sm != null) {
-        sm.stopScan();
+    @Override
+    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+        super.initialize(cordova, webView);
+        this.activity = cordova.getActivity();
+        registerScanReceiver();
     }
-    activity.unregisterReceiver(mScanReceiver);
-  }
 
-  @Override
-  public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+    private void registerScanReceiver() {
+        if (scanReceiver != null) return;
 
-    if (action.equals("register")) {
-        this.callbackContext = callbackContext;
-        return true;
-    } else if (action.equals("openScanner")){
-        sm.openScan();
-        callbackContext.success("openScanner");
-        return true;
-    } else if (action.equals("closeScanner")){
-        sm.closeScan();
-        callbackContext.success("closeScanner");
-        return true;
-    } else if (action.equals("startDecode")){
-        sm.openScan();
-        sm.startScan();
-        this.callbackContext = callbackContext;
-        return true;
-    } else if (action.equals("stopDecode")){
-        sm.stopScan();
-        callbackContext.success("stopDecode");
-        return true;
-    } else if (action.equals("start_continue")){
-        sm.setScanLaserMode(4);
-        this.callbackContext = callbackContext;
-        return true;
-    } else if (action.equals("stop_continue")){
-        sm.setScanLaserMode(8);
-        callbackContext.success("stop_continue");
-        return true;
+        IntentFilter filter = new IntentFilter(ACTION_SCAN_DATA);
+        scanReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String code = intent.getStringExtra("ScanCode");
+                String type = intent.getStringExtra("ScanCodeType");
+                if (callbackContext != null) {
+                    callbackContext.success(code); // tu peux faire un JSON si besoin
+                }
+            }
+        };
+        activity.registerReceiver(scanReceiver, filter);
     }
-    return false;
-  }
 
+    private void unregisterScanReceiver() {
+        if (scanReceiver != null) {
+            activity.unregisterReceiver(scanReceiver);
+            scanReceiver = null;
+        }
+    }
+
+    private void sendIntent(String action) {
+        Intent intent = new Intent(action);
+        intent.setComponent(new ComponentName(
+                "com.hikrobotics.pdaservice",
+                "com.pda.service.broadcast.LaunchReceiver"
+        ));
+        intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        activity.sendBroadcast(intent);
+    }
+
+    private void sendServiceControlIntent(String action, String key, Object value) {
+        Intent intent = new Intent(action);
+        intent.setComponent(new ComponentName(
+                "com.hikrobotics.pdaservice",
+                "com.pda.service.broadcast.ServiceControlReceiver"
+        ));
+        if (value instanceof String)
+            intent.putExtra(key, (String) value);
+        else if (value instanceof Boolean)
+            intent.putExtra(key, (Boolean) value);
+        else if (value instanceof Integer)
+            intent.putExtra(key, (Integer) value);
+        intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        activity.sendBroadcast(intent);
+    }
+
+    @Override
+    public void onPause(boolean multitasking) {
+        super.onPause(multitasking);
+        unregisterScanReceiver();
+    }
+
+    @Override
+    public void onResume(boolean multitasking) {
+        super.onResume(multitasking);
+        registerScanReceiver();
+    }
+
+    @Override
+    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+        this.callbackContext = callbackContext;
+
+        switch (action) {
+            case "register":
+                // Pas d'action nécessaire ici, le receiver est déjà prêt
+                return true;
+
+            case "openScanner":
+                sendIntent("com.service.scanner.start");
+                callbackContext.success("openScanner");
+                return true;
+
+            case "closeScanner":
+                sendIntent("com.service.scanner.stop");
+                callbackContext.success("closeScanner");
+                return true;
+
+            case "startDecode":
+                sendServiceControlIntent("com.service.scanner.start.read.code.broadcast", "customStartReadCodeBroadcast", "com.service.scanner.start.scanning");
+                callbackContext.success("startDecode");
+                return true;
+
+            case "stopDecode":
+                sendServiceControlIntent("com.service.scanner.stop.read.code.broadcast", "customStopReadCodeBroadcast", "com.service.scanner.stop.scanning");
+                callbackContext.success("stopDecode");
+                return true;
+
+            default:
+                return false;
+        }
+    }
 }
