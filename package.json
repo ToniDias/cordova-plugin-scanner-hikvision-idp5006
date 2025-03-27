@@ -1,0 +1,22 @@
+{
+  "name": "cordova-plugin-scanner-hikvision-idp5006",
+  "version": "1.0.0",
+  "cordova": {
+    "id": "cordova-plugin-scanner-hikvision-idp5006",
+    "platforms": [
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ToniDias/cordova-plugin-scanner-hikvision-idp5006.git"
+  },
+  "keywords": [
+    "cordova",
+    "scanner",
+    "hikvision",
+  ],
+  "author": "Syware Sàrl",
+  "license": "Apache 2.0",
+  "description": "Cordova Plugin to manage barcode scanner on Hikvision IDP5006",
+}
