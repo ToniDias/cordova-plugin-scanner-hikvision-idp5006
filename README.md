@@ -7,12 +7,16 @@ The plugin can be installed via [Cordova-CLI][CLI].
 
 Execute from the projects root folder:
 
-    $ cordova plugin add https://github.com/ToniDias/cordova-plugin-scanner-hikvision-idp5006.git
+```bash
+    cordova plugin add https://github.com/ToniDias/cordova-plugin-scanner-hikvision-idp5006.git
+```
 
 ## Remove
 To remove the plugin
 
-    $ cordova plugin remove cordova-plugin-scanner-hikvision-idp5006
+```bash
+    cordova plugin remove cordova-plugin-scanner-hikvision-idp5006
+```
 
 ## Usage
 
@@ -63,13 +67,44 @@ ScanPlugin.startDecode(
 ScanPlugin.stopDecode()
 ```
 
-## License
+## Testing on Device
 
-This software is released under the [Apache 2.0 License][apache2_license].
+Here is the step-by-step guide to test the plugin on a Hikvision MV-IDP5006 scanner.
 
-© 2017 [Syware Sàrl][syware]
+### 1. Remove previous Honeywell plugin (if present)
+
+```bash
+cordova plugin remove cordova-plugin-scanner-u8000s
+```
+
+### 2. Add the Hikvision plugin
+
+```bash
+    cordova plugin add ./plugins/cordova-plugin-scanner-hikvision-idp5006
+```
+
+### 3. Re Build the app
+
+```bash
+  cordova platform rm android
+  cordova platform add android
+  cordova build android
+```
+
+### 4. Run the app on the device
+
+```bash
+  adb install platforms/android/app/build/outputs/apk/debug/app-debug.apk
+```
+Or copy and install it manually on the device.
+
+### 5. Test the plugin and debug
+
+```bash
+  adb logcat | grep "ScanPlugin"
+```
+
+© 2025
 
 [cordova]: https://cordova.apache.org
 [CLI]: http://cordova.apache.org/docs/en/edge/guide_cli_index.md.html#The%20Command-line%20Interface
-[apache2_license]: http://opensource.org/licenses/Apache-2.0
-[syware]: https://www.syware.ch
