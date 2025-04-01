@@ -18,5 +18,5 @@
   ],
   "author": "Syware Sàrl",
   "license": "Apache 2.0",
-  "description": "Cordova Plugin to manage barcode scanner on Hikvision IDP5006",
+  "description": "Cordova Plugin to manage barcode scanner on Hikvision IDP5006"
 }
