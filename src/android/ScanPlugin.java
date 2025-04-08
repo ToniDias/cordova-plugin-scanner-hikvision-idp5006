@@ -26,6 +26,7 @@ public class ScanPlugin extends CordovaPlugin {
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
         this.activity = cordova.getActivity();
+        enableDefaultFormats();
         registerScanReceiver();
     }
 
@@ -79,6 +80,27 @@ public class ScanPlugin extends CordovaPlugin {
         activity.sendBroadcast(intent);
     }
 
+    private void enableDefaultFormats() {
+        Intent intent = new Intent("com.service.scanner.set.parameter.broadcast");
+        intent.setComponent(new ComponentName(
+                "com.hikrobotics.pdaservice",
+                "com.pda.service.broadcast.ParameterSettingReceiver"
+        ));
+        intent.putExtra("ScanCode39", true);
+        intent.putExtra("ScanCode128", true);
+        intent.putExtra("ScanQRCode", true);
+        intent.putExtra("ScanEAN13", true);
+        intent.putExtra("ScanEAN8", true);
+        intent.putExtra("ScanUPCA", true);
+        intent.putExtra("ScanDataMatrix", true);
+        intent.putExtra("ScanPDF417", true);
+        intent.putExtra("ScanAudio", true);
+        intent.putExtra("ScanVibrate", true);
+        intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        activity.sendBroadcast(intent);
+    }
+
+
     @Override
     public void onPause(boolean multitasking) {
         super.onPause(multitasking);
@@ -118,6 +140,11 @@ public class ScanPlugin extends CordovaPlugin {
             case "stopDecode":
                 sendServiceControlIntent("com.service.scanner.stop.read.code.broadcast", "customStopReadCodeBroadcast", "com.service.scanner.stop.scanning");
                 callbackContext.success("stopDecode");
+                return true;
+
+            case "enableDefaultFormats":
+                enableDefaultFormats();
+                callbackContext.success("Default symbologies enabled");
                 return true;
 
             default:
