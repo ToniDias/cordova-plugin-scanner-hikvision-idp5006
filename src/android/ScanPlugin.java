@@ -27,6 +27,7 @@ public class ScanPlugin extends CordovaPlugin {
         super.initialize(cordova, webView);
         this.activity = cordova.getActivity();
         enableDefaultFormats();
+        forceCordovaOutputMode();
         registerScanReceiver();
     }
 
@@ -150,5 +151,18 @@ public class ScanPlugin extends CordovaPlugin {
             default:
                 return false;
         }
+    }
+
+    private void forceCordovaOutputMode() {
+        Intent intent = new Intent("com.service.scanner.outputway");
+        intent.setComponent(new ComponentName(
+                "com.hikrobotics.pdaservice",
+                "com.pda.service.broadcast.ServiceControlReceiver"
+        ));
+        intent.putExtra("outputWay", "SYMBOL");
+        intent.putExtra("scanCodePrefix", "");
+        intent.putExtra("scanCodeSuffix", "");
+        intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        activity.sendBroadcast(intent);
     }
 }
