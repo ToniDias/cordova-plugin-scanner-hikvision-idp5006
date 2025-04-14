@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.util.Log;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -40,8 +41,11 @@ public class ScanPlugin extends CordovaPlugin {
             public void onReceive(Context context, Intent intent) {
                 String code = intent.getStringExtra("ScanCode");
                 String type = intent.getStringExtra("ScanCodeType");
+                Log.i("ScanPlugin", "PLEASE ! " + code);
                 if (callbackContext != null) {
-                    callbackContext.success(code); // tu peux faire un JSON si besoin
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, code);
+                    result.setKeepCallback(true); // 👈 again, keep it alive for next scan
+                    callbackContext.sendPluginResult(result);
                 }
             }
         };
@@ -112,14 +116,19 @@ public class ScanPlugin extends CordovaPlugin {
     public void onResume(boolean multitasking) {
         super.onResume(multitasking);
         registerScanReceiver();
-    }
+    } 
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         this.callbackContext = callbackContext;
+        Log.i("ScanPlugin", "ici " + action);
 
         switch (action) {
             case "register":
+                PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
+                pluginResult.setKeepCallback(true); // 👈 tell Cordova to keep the callback
+                this.callbackContext = callbackContext;
+                callbackContext.sendPluginResult(pluginResult);
                 // Pas d'action nécessaire ici, le receiver est déjà prêt
                 return true;
 
